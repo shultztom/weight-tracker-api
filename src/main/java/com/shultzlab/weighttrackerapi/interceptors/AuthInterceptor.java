@@ -11,6 +11,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter
     public boolean preHandle(HttpServletRequest requestServlet, HttpServletResponse responseServlet, Object handler) throws Exception
     {
         // TODO add auth
+        // TODO is this being called twice when running on mac
         System.out.println("INTERCEPTOR PREHANDLE CALLED");
         return true;
     }
