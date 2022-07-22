@@ -1,5 +1,7 @@
 package com.shultzlab.weighttrackerapi.models;
 
+import com.shultzlab.weighttrackerapi.models.enums.ActivityLevel;
+import com.shultzlab.weighttrackerapi.models.enums.Gender;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,7 +11,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 @Entity
 @Table(name="users")
 public class User {
@@ -24,15 +25,19 @@ public class User {
     // Save height as cm
     private Double height;
 
+    // Below fields for BMR and TDEE
+    // https://www.k-state.edu/paccats/Contents/PA/PDF/Physical%20Activity%20and%20Controlling%20Weight.pdf
     @Column
     // Use local date
     private LocalDate birthday;
 
     @Column
-    private String activityLevel;
+    @Enumerated(EnumType.STRING)
+    private ActivityLevel activityLevel;
 
     @Column
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,17 +49,79 @@ public class User {
     @Column(name = "modifiedAt")
     private Date modifiedAt;
 
-    public User(String username, Double height, LocalDate birthday, String activityLevel, String gender, Date createdAt, Date modifiedAt) {
+    public User(String username, Double height, LocalDate birthday, ActivityLevel activityLevel, Gender gender) {
         this.username = username;
         this.height = height;
         this.birthday = birthday;
         this.activityLevel = activityLevel;
         this.gender = gender;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
     }
 
     public User() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
+    }
+
+    public ActivityLevel getActivityLevel() {
+        return activityLevel;
+    }
+
+    public void setActivityLevel(ActivityLevel activityLevel) {
+        this.activityLevel = activityLevel;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Date modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

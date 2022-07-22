@@ -21,6 +21,8 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody User user){
+        // TODO ensure user.username matches username in token
+        // TODO validate
         return this.userRepository.save(user);
     }
 
