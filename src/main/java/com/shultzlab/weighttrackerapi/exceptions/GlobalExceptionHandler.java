@@ -1,4 +1,4 @@
-package com.shultzlab.weighttrackerapi.Exception;
+package com.shultzlab.weighttrackerapi.exceptions;
 
 import java.util.Date;
 
