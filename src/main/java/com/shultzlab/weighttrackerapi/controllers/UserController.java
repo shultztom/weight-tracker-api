@@ -28,6 +28,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
         User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        // TODO ensure username matches token
         return ResponseEntity.ok().body(user);
     }
 
@@ -41,6 +42,7 @@ public class UserController {
     @PutMapping("/{id}")
     public User updateUser(@PathVariable(value = "id") Long userId, @RequestBody User userRequest) throws ResourceNotFoundException {
         User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        // TODO ensure username matches token
         user.setUsername(userRequest.getUsername());
         user.setHeight(userRequest.getHeight());
         user.setBirthday(userRequest.getBirthday());
@@ -52,6 +54,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public Map<String, Boolean> deleteUser(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException{
         User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        // TODO ensure username matches token
         this.userRepository.delete(user);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
