@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +39,9 @@ public class User {
     @Column
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    @Transient
+    private Integer age;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -123,5 +127,13 @@ public class User {
 
     public void setModifiedAt(Date modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public Integer getAge() {
+        return Period.between(this.birthday, LocalDate.now()).getYears();
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
     }
 }
