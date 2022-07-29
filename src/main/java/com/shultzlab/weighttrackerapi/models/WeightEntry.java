@@ -4,6 +4,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -21,6 +22,9 @@ public class WeightEntry {
     // Saved in kg
     private Double weight;
 
+    @Column
+    private LocalDate entryDate;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "createdAt")
@@ -31,9 +35,10 @@ public class WeightEntry {
     @Column(name = "modifiedAt")
     private Date modifiedAt;
 
-    public WeightEntry(User user, Double weight) {
+    public WeightEntry(User user, Double weight, LocalDate entryDate) {
         this.user = user;
         this.weight = weight;
+        this.entryDate = entryDate;
     }
 
     public WeightEntry() {}
@@ -60,6 +65,14 @@ public class WeightEntry {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public LocalDate getEntryDate() {
+        return entryDate;
+    }
+
+    public void setEntryDate(LocalDate entryDate) {
+        this.entryDate = entryDate;
     }
 
     public Date getCreatedAt() {
