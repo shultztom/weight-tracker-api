@@ -29,7 +29,7 @@ public class StatsController {
     public Map<String, Double> getBmrByUserId(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
         // TODO verify user matches token
         User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        WeightEntry entry = this.weightEntryRepository.findFirstByUser(user);
+        WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
         Double bmr = StatsService.calculateBMR(user, entry.getWeight());
 
@@ -43,7 +43,7 @@ public class StatsController {
     public Map<String, Double> getTdeeByUserId(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
         // TODO verify user matches token
         User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-        WeightEntry entry = this.weightEntryRepository.findFirstByUser(user);
+        WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
         Double tdee = StatsService.calculateTDEE(user, entry.getWeight());
         Map<String, Double> response = new HashMap<>();

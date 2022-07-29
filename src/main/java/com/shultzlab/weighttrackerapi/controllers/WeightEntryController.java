@@ -9,9 +9,11 @@ import com.shultzlab.weighttrackerapi.repositories.WeightEntryRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -45,9 +47,37 @@ public class WeightEntryController {
     }
 
     @GetMapping("/username/{username}")
-    public List<WeightEntry> getAllWeightEntriesForUser(@PathVariable(value = "username") String username) {
+    public List<WeightEntry> getAllWeightEntriesForUserScopedByDays(@PathVariable(value = "username") String username,
+                                                                    @RequestParam Optional<String> time) {
+
+        String daysStr = "-1";
+        if(time.isPresent()){
+            daysStr = time.get();
+        }
+
+        // Account for empty string
+        if(daysStr.equals("")){
+            daysStr = "-1";
+        }
+
+        int days = Integer.parseInt(daysStr);
+
+        LocalDate date = LocalDate.now().minusDays(days);
+
+        // Handle all
+        if(days == -1){
+            date = LocalDate.EPOCH;
+        }
+
         // TODO verify username matches token
-        return this.weightEntryRepository.findAllByUsername(username);
+        return this.weightEntryRepository.findAllByUsernameByDays(username, date);
+    }
+
+    @GetMapping("/username/{username}/last")
+    public WeightEntry getLastWeightEntryByUsername(@PathVariable(value = "username") String username) {
+        // TODO verify username matches token
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        return this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
     }
 
     @PostMapping()
