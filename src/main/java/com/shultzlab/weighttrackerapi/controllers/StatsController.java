@@ -25,10 +25,13 @@ public class StatsController {
 
     // https://www.k-state.edu/paccats/Contents/PA/PDF/Physical%20Activity%20and%20Controlling%20Weight.pdf
 
-    @GetMapping("/bmr/{id}")
-    public Map<String, Double> getBmrByUserId(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
+    @GetMapping("/bmr/{username}")
+    public Map<String, Double> getBmrByUsername(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
         // TODO verify user matches token
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
         WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
         Double bmr = StatsService.calculateBMR(user, entry.getWeight());
@@ -39,10 +42,13 @@ public class StatsController {
         return response;
     }
 
-    @GetMapping("/tdee/{id}")
-    public Map<String, Double> getTdeeByUserId(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
+    @GetMapping("/tdee/{username}")
+    public Map<String, Double> getTdeeByUsername(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
         // TODO verify user matches token
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
         WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
         Double tdee = StatsService.calculateTDEE(user, entry.getWeight());
@@ -50,7 +56,23 @@ public class StatsController {
         response.put("TDEE", tdee);
 
         return response;
+    }
 
+    @GetMapping("/bmi/{username}")
+    public Map<String, Double> getBMIByUserId(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
+        // TODO verify user matches token
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
+
+        WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
+
+        Double bmi = StatsService.calculateBMI(user, entry.getWeight());
+        Map<String, Double> response = new HashMap<>();
+        response.put("BMI", bmi);
+
+        return response;
     }
 
 }

@@ -74,14 +74,17 @@ public class WeightEntryController {
     }
 
     @GetMapping("/username/{username}/last")
-    public WeightEntry getLastWeightEntryByUsername(@PathVariable(value = "username") String username) {
+    public WeightEntry getLastWeightEntryByUsername(@PathVariable(value = "username") String username) throws ResourceNotFoundException  {
         // TODO verify username matches token
         User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
         return this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
     }
 
     @PostMapping()
-    public WeightEntry createWeightEntry(@RequestBody WeightEntryRequest entry) throws ResourceNotFoundException{
+    public WeightEntry createWeightEntry(@RequestBody WeightEntryRequest entry) throws ResourceNotFoundException {
         // TODO verify user matches token
         Long userId = entry.getUserId();
         User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));

@@ -32,4 +32,15 @@ public class StatsService {
 
         return -1.0;
     }
+
+    public static Double calculateBMI(User user, Double weight){
+        // BMI = kg/m2
+
+        Double meters = user.getHeight() * 0.01;
+        Double metersSquared = Math.pow(meters, 2);
+
+        Double bmi = weight / metersSquared;
+
+        return bmi;
+    }
 }
