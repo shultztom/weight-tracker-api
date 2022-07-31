@@ -8,7 +8,9 @@ import com.shultzlab.weighttrackerapi.repositories.WeightEntryRepository;
 import com.shultzlab.weighttrackerapi.services.StatsService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin
@@ -70,6 +72,28 @@ public class StatsController {
 
         Double bmi = StatsService.calculateBMI(user, entry.getWeight());
         Map<String, Double> response = new HashMap<>();
+        response.put("BMI", bmi);
+
+        return response;
+    }
+
+    @GetMapping("/all/{username}")
+    public Map<String, Double> getAllStatsByUserId(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
+        // TODO verify user matches token
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
+
+        WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
+
+        Double bmr = StatsService.calculateBMR(user, entry.getWeight());
+        Double tdee = StatsService.calculateTDEE(user, entry.getWeight());
+        Double bmi = StatsService.calculateBMI(user, entry.getWeight());
+
+        Map<String, Double> response = new HashMap<>();
+        response.put("BMR", bmr);
+        response.put("TDEE", tdee);
         response.put("BMI", bmi);
 
         return response;
