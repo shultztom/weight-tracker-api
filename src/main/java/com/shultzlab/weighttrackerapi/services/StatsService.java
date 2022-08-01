@@ -5,11 +5,18 @@ import com.shultzlab.weighttrackerapi.models.enums.ActivityLevel;
 import com.shultzlab.weighttrackerapi.models.enums.Gender;
 
 public class StatsService {
+    /*
+    Mifflin-St Jeor Equation:
+    For men:
+    BMR = 10W + 6.25H - 5A + 5
+    For women:
+    BMR = 10W + 6.25H - 5A - 161
+     */
     public static Double calculateBMR(User user, Double weight){
         if(user.getGender() == Gender.male){
-            return 66 + (13.7 * weight) + (5 * user.getHeight()) - (6.8 * user.getAge());
+            return (10 * weight) + (6.25 * user.getHeight()) - (5 * user.getAge()) + 5;
         } else if(user.getGender() == Gender.female) {
-            return 655 + (9.6 * weight) + (1.8 * user.getHeight()) - (4.7 * user.getAge());
+            return (10 * weight) + (6.25 * user.getHeight()) - (5 * user.getAge()) - 161;
         }
 
         return -1.0;
