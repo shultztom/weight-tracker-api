@@ -86,8 +86,11 @@ public class WeightEntryController {
     @PostMapping()
     public WeightEntry createWeightEntry(@RequestBody WeightEntryRequest entry) throws ResourceNotFoundException {
         // TODO verify user matches token
-        Long userId = entry.getUserId();
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        String username = entry.getUsername();
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
         WeightEntry newWeightEntry = new WeightEntry(user, entry.getWeight(), entry.getEntryDate());
         return this.weightEntryRepository.save(newWeightEntry);
     }
@@ -95,8 +98,11 @@ public class WeightEntryController {
     @PutMapping("/{id}")
     public WeightEntry updateWeightEntry(@PathVariable(value = "id") Long entryId, @RequestBody WeightEntryRequest entryRequest) throws ResourceNotFoundException {
         // TODO verify user matches token
-        Long userId = entryRequest.getUserId();
-        User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        String username = entryRequest.getUsername();
+        User user = this.userRepository.findDistinctTopByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("User not found with username: " + username);
+        }
         WeightEntry entry = this.weightEntryRepository.findById(entryId).orElseThrow(() -> new ResourceNotFoundException("Entry not found with id: " + entryId));
         entry.setUser(user);
         entry.setWeight(entryRequest.getWeight());

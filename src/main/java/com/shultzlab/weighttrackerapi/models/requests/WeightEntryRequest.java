@@ -1,30 +1,29 @@
 package com.shultzlab.weighttrackerapi.models.requests;
 
-import javax.persistence.Temporal;
 import java.time.LocalDate;
 
 // Used for request where we can send id of user
 public class WeightEntryRequest {
-    private Long userId;
+    private String username;
 
     private Double weight;
 
     private LocalDate entryDate;
 
-    public WeightEntryRequest(Long userId, Double weight, LocalDate entryDate) {
-        this.userId = userId;
+    public WeightEntryRequest(String username, Double weight, LocalDate entryDate) {
+        this.username = username;
         this.weight = weight;
         this.entryDate = entryDate;
     }
 
     public WeightEntryRequest() {}
 
-    public Long getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Double getWeight() {
