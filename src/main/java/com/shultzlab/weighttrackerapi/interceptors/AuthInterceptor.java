@@ -1,5 +1,6 @@
 package com.shultzlab.weighttrackerapi.interceptors;
 
+import com.shultzlab.weighttrackerapi.exceptions.TokenForbiddenException;
 import com.shultzlab.weighttrackerapi.models.api.Token;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -19,13 +20,17 @@ public class AuthInterceptor extends HandlerInterceptorAdapter
 
         WebClient webClient = WebClient.create(url);
 
-        webClient
-            .get()
-            .uri("/verify")
-            .header("x-auth-token", token)
-            .retrieve()
-            .bodyToMono(Token.class)
-            .block();
+        try {
+            webClient
+                    .get()
+                    .uri("/verify")
+                    .header("x-auth-token", token)
+                    .retrieve()
+                    .bodyToMono(Token.class)
+                    .block();
+        } catch (Exception e){
+            throw new TokenForbiddenException();
+        }
 
         return true;
     }

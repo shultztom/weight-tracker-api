@@ -1,11 +1,13 @@
 package com.shultzlab.weighttrackerapi.controllers;
 
 import com.shultzlab.weighttrackerapi.exceptions.ResourceNotFoundException;
+import com.shultzlab.weighttrackerapi.exceptions.TokenForbiddenException;
 import com.shultzlab.weighttrackerapi.models.User;
 import com.shultzlab.weighttrackerapi.models.WeightEntry;
 import com.shultzlab.weighttrackerapi.repositories.UserRepository;
 import com.shultzlab.weighttrackerapi.repositories.WeightEntryRepository;
 import com.shultzlab.weighttrackerapi.services.StatsService;
+import com.shultzlab.weighttrackerapi.services.TokenService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,8 +28,13 @@ public class StatsController {
     // https://www.k-state.edu/paccats/Contents/PA/PDF/Physical%20Activity%20and%20Controlling%20Weight.pdf
 
     @GetMapping("/bmr/{username}")
-    public Map<String, Double> getBmrByUsername(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
-        // TODO verify user matches token
+    public Map<String, Double> getBmrByUsername(@PathVariable(value = "username") String username,
+                                                @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
+        String tokenUser = TokenService.getUsernameFromToken(token);
+        if(!username.equals(tokenUser)) {
+            throw new TokenForbiddenException();
+        }
+
         User user = this.userRepository.findDistinctTopByUsername(username);
         if(user == null){
             throw new ResourceNotFoundException("User not found with username: " + username);
@@ -43,8 +50,13 @@ public class StatsController {
     }
 
     @GetMapping("/tdee/{username}")
-    public Map<String, Double> getTdeeByUsername(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
-        // TODO verify user matches token
+    public Map<String, Double> getTdeeByUsername(@PathVariable(value = "username") String username,
+                                                 @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
+        String tokenUser = TokenService.getUsernameFromToken(token);
+        if(!username.equals(tokenUser)) {
+            throw new TokenForbiddenException();
+        }
+
         User user = this.userRepository.findDistinctTopByUsername(username);
         if(user == null){
             throw new ResourceNotFoundException("User not found with username: " + username);
@@ -59,8 +71,13 @@ public class StatsController {
     }
 
     @GetMapping("/bmi/{username}")
-    public Map<String, Double> getBMIByUserId(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
-        // TODO verify user matches token
+    public Map<String, Double> getBMIByUserId(@PathVariable(value = "username") String username,
+                                              @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
+        String tokenUser = TokenService.getUsernameFromToken(token);
+        if(!username.equals(tokenUser)) {
+            throw new TokenForbiddenException();
+        }
+
         User user = this.userRepository.findDistinctTopByUsername(username);
         if(user == null){
             throw new ResourceNotFoundException("User not found with username: " + username);
@@ -76,8 +93,13 @@ public class StatsController {
     }
 
     @GetMapping("/all/{username}")
-    public Map<String, Double> getAllStatsByUserId(@PathVariable(value = "username") String username) throws ResourceNotFoundException {
-        // TODO verify user matches token
+    public Map<String, Double> getAllStatsByUserId(@PathVariable(value = "username") String username,
+                                                   @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
+        String tokenUser = TokenService.getUsernameFromToken(token);
+        if(!username.equals(tokenUser)) {
+            throw new TokenForbiddenException();
+        }
+
         User user = this.userRepository.findDistinctTopByUsername(username);
         if(user == null){
             throw new ResourceNotFoundException("User not found with username: " + username);
