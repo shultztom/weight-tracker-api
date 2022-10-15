@@ -29,6 +29,13 @@ env:
         name: weight.api.secret
         key: SPRING_DATASOURCE_URL
         optional: false
+  - name: X_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: weight.api.secret
+        key: X_API_TOKEN
+        optional: false
+
 
 serviceAccount:
   # Specifies whether a service account should be created
