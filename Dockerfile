@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-buster
+FROM openjdk:17-jdk-buster
 ARG JAR_FILE=build/libs/*.jar /*.jar
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
