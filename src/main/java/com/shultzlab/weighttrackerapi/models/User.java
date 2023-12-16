@@ -5,7 +5,8 @@ import com.shultzlab.weighttrackerapi.models.enums.Gender;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Date;

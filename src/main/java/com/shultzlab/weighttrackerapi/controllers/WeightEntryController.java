@@ -47,6 +47,7 @@ public class WeightEntryController {
 //        return this.weightEntryRepository.findAllByUserId(userId);
 //    }
 
+
     @GetMapping("/username/{username}")
     public List<WeightEntry> getAllWeightEntriesForUserScopedByDays(@PathVariable(value = "username") String username,
                                                                     @RequestParam Optional<String> time,
