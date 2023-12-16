@@ -3,6 +3,7 @@ package com.shultzlab.weighttrackerapi.controllers;
 import com.shultzlab.weighttrackerapi.exceptions.ResourceNotFoundException;
 import com.shultzlab.weighttrackerapi.exceptions.TokenForbiddenException;
 import com.shultzlab.weighttrackerapi.models.User;
+import com.shultzlab.weighttrackerapi.models.requests.CreateUserRequest;
 import com.shultzlab.weighttrackerapi.repositories.UserRepository;
 import com.shultzlab.weighttrackerapi.services.TokenService;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +36,21 @@ public class UserController {
 //    }
 
     @PostMapping
-    public User createUser(@RequestBody User user, @RequestHeader("x-auth-token") String token) throws TokenForbiddenException {
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException();
+    public String createUser(@RequestBody CreateUserRequest user) throws Exception {
+        // Register with auth-api
+        String username = TokenService.registerUserWithAuthApi(user);
+
+        User newUser = new User(user.getUsername(), user.getHeight(), user.getBirthday(), user.getActivityLevel(), user.getGender());
+
+        try {
+            this.userRepository.save(newUser);
+        } catch (Exception err) {
+            // Delete user in auth-api to clean up
+            TokenService.deleteUserWithAuthApi(username);
+            throw err;
         }
-        return this.userRepository.save(user);
+
+        return "SUCCESS";
     }
 
     @PutMapping("/{id}")
