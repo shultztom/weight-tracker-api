@@ -3,6 +3,7 @@ package com.shultzlab.weighttrackerapi.models;
 import com.shultzlab.weighttrackerapi.models.enums.ActivityLevel;
 import com.shultzlab.weighttrackerapi.models.enums.Gender;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
@@ -40,8 +41,7 @@ public class User {
     @Column
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    @Transient
+    @Formula("(date_part('year',AGE(current_date,birthday)))")
     private Integer age;
 
     @CreationTimestamp
@@ -131,7 +131,7 @@ public class User {
     }
 
     public Integer getAge() {
-        return Period.between(this.birthday, LocalDate.now()).getYears();
+        return age;
     }
 
     public void setAge(Integer age) {
