@@ -8,7 +8,6 @@ import com.shultzlab.weighttrackerapi.models.requests.WeightEntryRequest;
 import com.shultzlab.weighttrackerapi.repositories.UserRepository;
 import com.shultzlab.weighttrackerapi.repositories.WeightEntryRepository;
 import com.shultzlab.weighttrackerapi.services.TokenService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -22,10 +21,12 @@ import java.util.Optional;
 public class WeightEntryController {
     final WeightEntryRepository weightEntryRepository;
     final UserRepository userRepository;
+    final TokenService tokenService;
 
-    public WeightEntryController(WeightEntryRepository weightEntryRepository, UserRepository userRepository) {
+    public WeightEntryController(WeightEntryRepository weightEntryRepository, UserRepository userRepository, TokenService tokenService) {
         this.weightEntryRepository = weightEntryRepository;
         this.userRepository = userRepository;
+        this.tokenService = tokenService;
     }
 
     // Commented out as not used by client
@@ -51,12 +52,9 @@ public class WeightEntryController {
     @GetMapping("/username/{username}")
     public List<WeightEntry> getAllWeightEntriesForUserScopedByDays(@PathVariable(value = "username") String username,
                                                                     @RequestParam Optional<String> time,
-                                                                    @RequestHeader("x-auth-token") String token) throws TokenForbiddenException {
+                                                                    @RequestHeader("x-auth-token") String token) throws TokenForbiddenException, ResourceNotFoundException {
 
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if (!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
 
         String daysStr = "-1";
         if (time.isPresent()) {
@@ -77,55 +75,26 @@ public class WeightEntryController {
             date = LocalDate.EPOCH;
         }
 
-        // TODO verify username matches token
-        return this.weightEntryRepository.findAllByUsernameByDays(username, date);
+        return this.weightEntryRepository.findAllByUsernameByDays(user.getUsername(), date);
     }
 
     @GetMapping("/username/{username}/last")
     public WeightEntry getLastWeightEntryByUsername(@PathVariable(value = "username") String username, @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        User user = this.userRepository.findDistinctTopByUsername(username);
-
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if (!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
         return this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
     }
 
     @PostMapping()
     public WeightEntry createWeightEntry(@RequestBody WeightEntryRequest entry, @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        String username = entry.getUsername();
-
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if (!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        User user = this.userRepository.findDistinctTopByUsername(username);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, entry.getUsername());
         WeightEntry newWeightEntry = new WeightEntry(user, entry.getWeight(), entry.getEntryDate());
         return this.weightEntryRepository.save(newWeightEntry);
     }
 
     @PutMapping("/{id}")
     public WeightEntry updateWeightEntry(@PathVariable(value = "id") Long entryId, @RequestBody WeightEntryRequest entryRequest, @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        String username = entryRequest.getUsername();
+        User user = tokenService.getAndValidateUsernameFromToken(token, entryRequest.getUsername());
 
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if (!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        User user = this.userRepository.findDistinctTopByUsername(username);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
         WeightEntry entry = this.weightEntryRepository.findById(entryId).orElseThrow(() -> new ResourceNotFoundException("Entry not found with id: " + entryId));
         entry.setUser(user);
         entry.setWeight(entryRequest.getWeight());
@@ -137,11 +106,7 @@ public class WeightEntryController {
     public Map<String, Boolean> deleteWeightEntry(@PathVariable(value = "id") Long entryId, @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
         WeightEntry entry = this.weightEntryRepository.findById(entryId).orElseThrow(() -> new ResourceNotFoundException("Entry not found with id: " + entryId));
 
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if (!entry.getUser().getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
+        User user = tokenService.getAndValidateUsernameFromToken(token, entry.getUser().getUsername());
 
         this.weightEntryRepository.delete(entry);
         Map<String, Boolean> response = new HashMap<>();

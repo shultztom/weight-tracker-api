@@ -18,10 +18,12 @@ import java.util.Map;
 public class StatsController {
     final WeightEntryRepository weightEntryRepository;
     final UserRepository userRepository;
+    final TokenService tokenService;
 
-    public StatsController(WeightEntryRepository weightEntryRepository, UserRepository userRepository){
+    public StatsController(WeightEntryRepository weightEntryRepository, UserRepository userRepository, TokenService tokenService) {
         this.weightEntryRepository = weightEntryRepository;
         this.userRepository = userRepository;
+        this.tokenService = tokenService;
     }
 
     // https://www.k-state.edu/paccats/Contents/PA/PDF/Physical%20Activity%20and%20Controlling%20Weight.pdf
@@ -29,15 +31,7 @@ public class StatsController {
     @GetMapping("/bmr/{username}")
     public Map<String, Double> getBmrByUsername(@PathVariable(value = "username") String username,
                                                 @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if(!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        User user = this.userRepository.findDistinctTopByUsername(username);
-        if(user == null){
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
         WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
         Double bmr = StatsService.calculateBMR(user, entry.getWeight());
@@ -51,15 +45,7 @@ public class StatsController {
     @GetMapping("/tdee/{username}")
     public Map<String, Double> getTdeeByUsername(@PathVariable(value = "username") String username,
                                                  @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if(!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        User user = this.userRepository.findDistinctTopByUsername(username);
-        if(user == null){
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
         WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
         Double tdee = StatsService.calculateTDEE(user, entry.getWeight());
@@ -72,15 +58,7 @@ public class StatsController {
     @GetMapping("/bmi/{username}")
     public Map<String, Double> getBMIByUserId(@PathVariable(value = "username") String username,
                                               @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if(!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        User user = this.userRepository.findDistinctTopByUsername(username);
-        if(user == null){
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
 
         WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
@@ -94,15 +72,7 @@ public class StatsController {
     @GetMapping("/all/{username}")
     public Map<String, Double> getAllStatsByUserId(@PathVariable(value = "username") String username,
                                                    @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
-        String tokenUser = TokenService.getUsernameFromToken(token);
-        if(!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
-        }
-
-        User user = this.userRepository.findDistinctTopByUsername(username);
-        if(user == null){
-            throw new ResourceNotFoundException("User not found with username: " + username);
-        }
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
 
         WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
 
@@ -116,6 +86,15 @@ public class StatsController {
         response.put("BMI", bmi);
 
         return response;
+    }
+
+    @GetMapping("/tdeeOptions/{username}")
+    public Map<String, Integer> getTdeeOptionsByUserId(@PathVariable(value = "username") String username,
+                                              @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
+
+        User user = tokenService.getAndValidateUsernameFromToken(token, username);
+        WeightEntry entry = this.weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
+        return StatsService.viewTDEEOptions(user, entry.getWeight());
     }
 
 }
