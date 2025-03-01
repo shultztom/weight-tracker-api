@@ -4,6 +4,8 @@ import com.shultzlab.weighttrackerapi.models.User;
 import com.shultzlab.weighttrackerapi.models.enums.ActivityLevel;
 import com.shultzlab.weighttrackerapi.models.enums.Gender;
 
+import java.util.HashMap;
+
 public class StatsService {
     /*
     Mifflin-St Jeor Equation:
@@ -49,5 +51,19 @@ public class StatsService {
         Double bmi = weight / metersSquared;
 
         return bmi;
+    }
+
+    public static HashMap<String, Integer> viewTDEEOptions(User user, Double weight){
+        Double bmr = calculateBMR(user, weight);
+
+        HashMap<String, Integer> tdeeOptions = new HashMap<>();
+        tdeeOptions.put("sedentary", (int) Math.round(bmr * 1.2));
+        tdeeOptions.put("lightlyActive", (int) Math.round(bmr * 1.375));
+        tdeeOptions.put("moderatelyActive", (int) Math.round(bmr * 1.55));
+        tdeeOptions.put("veryActive", (int) Math.round(bmr * 1.725));
+        tdeeOptions.put("extraActive", (int) Math.round( bmr * 1.9));
+
+        return tdeeOptions;
+
     }
 }
