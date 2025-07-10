@@ -7,10 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest requestServlet, HttpServletResponse responseServlet, Object handler) throws Exception
@@ -34,7 +30,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                     .block();
         } catch (Exception e){
             System.out.println(e.getMessage());
-            throw new TokenForbiddenException();
+            throw new TokenForbiddenException("Not authorized to access this goal");
         }
 
         return true;
