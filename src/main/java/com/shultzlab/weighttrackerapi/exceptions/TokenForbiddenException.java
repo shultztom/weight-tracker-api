@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class TokenForbiddenException extends Exception {
     private static final long serialVersionUID = 2L;
 
-    public TokenForbiddenException(){
+    public TokenForbiddenException(String s){
         super("Resource does not belong to this user!");
     }
 }

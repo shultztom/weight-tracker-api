@@ -3,9 +3,11 @@ package com.shultzlab.weighttrackerapi.services;
 import com.shultzlab.weighttrackerapi.models.User;
 import com.shultzlab.weighttrackerapi.models.enums.ActivityLevel;
 import com.shultzlab.weighttrackerapi.models.enums.Gender;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 
+@Service
 public class StatsService {
     /*
     Mifflin-St Jeor Equation:

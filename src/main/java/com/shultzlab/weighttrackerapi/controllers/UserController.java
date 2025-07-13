@@ -36,7 +36,7 @@ public class UserController {
     public User createUser(@RequestBody User user, @RequestHeader("x-auth-token") String token) throws TokenForbiddenException {
         String tokenUser = TokenService.getUsernameFromToken(token);
         if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException();
+            throw new TokenForbiddenException("Not authorized to access this goal");
         }
         return this.userRepository.save(user);
     }
@@ -47,7 +47,7 @@ public class UserController {
 
         String tokenUser = TokenService.getUsernameFromToken(token);
         if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException();
+            throw new TokenForbiddenException("Not authorized to access this goal");
         }
 
         user.setUsername(userRequest.getUsername());
@@ -64,7 +64,7 @@ public class UserController {
 
         String tokenUser = TokenService.getUsernameFromToken(token);
         if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException();
+            throw new TokenForbiddenException("Not authorized to access this goal");
         }
 
         this.userRepository.delete(user);

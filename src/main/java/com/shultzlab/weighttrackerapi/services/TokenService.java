@@ -30,7 +30,7 @@ public class TokenService {
     public User getAndValidateUsernameFromToken(String token, String username) throws TokenForbiddenException, ResourceNotFoundException {
         String tokenUser = getUsernameFromToken(token);
         if(!username.equals(tokenUser)) {
-            throw new TokenForbiddenException();
+            throw new TokenForbiddenException("Not authorized to access this goal");
         }
 
         return userService.findDistinctTopByUsername(username);
