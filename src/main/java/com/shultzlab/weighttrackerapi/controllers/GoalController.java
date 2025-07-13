@@ -12,8 +12,11 @@ import com.shultzlab.weighttrackerapi.repositories.UserRepository;
 import com.shultzlab.weighttrackerapi.repositories.WeightEntryRepository;
 import com.shultzlab.weighttrackerapi.services.StatsService;
 import com.shultzlab.weighttrackerapi.services.TokenService;
+import com.shultzlab.weighttrackerapi.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -26,13 +29,15 @@ public class GoalController {
     final WeightEntryRepository weightEntryRepository;
     final StatsService statsService;
     final TokenService tokenService;
+    private final UserService userService;
 
-    public GoalController(GoalRepository goalRepository, UserRepository userRepository, WeightEntryRepository weightEntryRepository, StatsService statsService, TokenService tokenService) {
+    public GoalController(GoalRepository goalRepository, UserRepository userRepository, WeightEntryRepository weightEntryRepository, StatsService statsService, TokenService tokenService, UserService userService) {
         this.goalRepository = goalRepository;
         this.userRepository = userRepository;
         this.weightEntryRepository = weightEntryRepository;
         this.statsService = statsService;
         this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     @GetMapping("/{username}")
@@ -56,15 +61,22 @@ public class GoalController {
     @GetMapping("/{username}/goal/calorieBreakdown")
     public GoalResponse getCalorieBreakdown(@PathVariable(value = "username") String username, @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
 
+        LocalDate TODAY = LocalDate.now();
         int CALORIES_IN_KG = 7700;
 
         User user = tokenService.getAndValidateUsernameFromToken(token, username);
 
         // Get current weight for user
         WeightEntry currentWeight = weightEntryRepository.findDistinctFirstByUserOrderByEntryDateDesc(user);
+        if(currentWeight == null) {
+            return new GoalResponse();
+        }
 
         // Get goal weight for user
         Goal goalWeight = goalRepository.findDistinctFirstByUserOrderByCreatedAtDesc(user);
+        if(goalWeight == null){
+            return new GoalResponse();
+        }
 
         // Get diff
         double weightDiff = currentWeight.getWeight() - goalWeight.getWeight();
@@ -72,7 +84,7 @@ public class GoalController {
             return new GoalResponse();
         }
 
-        long daysUntilGoal = ChronoUnit.DAYS.between(currentWeight.getEntryDate(), goalWeight.getGoalDate());
+        long daysUntilGoal = ChronoUnit.DAYS.between(TODAY, goalWeight.getGoalDate());
         if (daysUntilGoal <= 0) {
             return new GoalResponse();
         }
