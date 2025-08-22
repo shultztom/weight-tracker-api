@@ -4,11 +4,15 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Index;
+
 import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
-@Table(name = "weightEntries")
+@Table(name = "weightEntries", indexes = {
+        @Index(name = "weight_entries_user_id_index", columnList = "user_id")
+})
 public class WeightEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
