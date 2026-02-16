@@ -25,18 +25,22 @@ public class UserController {
 //        return this.userRepository.findAll();
 //    }
 //
-//    @GetMapping("/{id}")
-//    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
-//        User user = this.userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-//        // TODO ensure username matches token
-//        return ResponseEntity.ok().body(user);
-//    }
+    @GetMapping("/{username}")
+    public User getUserById(@PathVariable String username, @RequestHeader("x-auth-token") String token) throws ResourceNotFoundException, TokenForbiddenException {
+        String tokenUser = TokenService.getUsernameFromToken(token);
+        if(!username.equals(tokenUser)) {
+            throw new TokenForbiddenException("Not authorized to access this user info");
+        }
+
+        return this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id"));
+    }
 
     @PostMapping
     public User createUser(@RequestBody User user, @RequestHeader("x-auth-token") String token) throws TokenForbiddenException {
         String tokenUser = TokenService.getUsernameFromToken(token);
         if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException("Not authorized to access this goal");
+            throw new TokenForbiddenException("Not authorized to access this user info");
         }
         return this.userRepository.save(user);
     }
@@ -47,7 +51,7 @@ public class UserController {
 
         String tokenUser = TokenService.getUsernameFromToken(token);
         if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException("Not authorized to access this goal");
+            throw new TokenForbiddenException("Not authorized to access this user info");
         }
 
         user.setUsername(userRequest.getUsername());
@@ -64,7 +68,7 @@ public class UserController {
 
         String tokenUser = TokenService.getUsernameFromToken(token);
         if(!user.getUsername().equals(tokenUser)) {
-            throw new TokenForbiddenException("Not authorized to access this goal");
+            throw new TokenForbiddenException("Not authorized to access this user info");
         }
 
         this.userRepository.delete(user);
