@@ -1,0 +1,1 @@
+trivy image us-central1-docker.pkg.dev/shultzlab/docker-gcp/weight-tracker-api:latest
